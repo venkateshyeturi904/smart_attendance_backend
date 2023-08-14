@@ -10,6 +10,7 @@ public class AttendanceBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(AttendanceBackendApplication.class, args);
+		System.out.println("hi");
 	}
 	
 	@Bean
