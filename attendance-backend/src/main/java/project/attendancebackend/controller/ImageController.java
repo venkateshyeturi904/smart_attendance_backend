@@ -67,7 +67,7 @@ public class ImageController {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         
         ResponseEntity<String> response = attendanceService.saveAttendanceData(requestEntity);
-
+        System.out.println(response);
         return ResponseEntity.ok(response.getBody());
     }
 
