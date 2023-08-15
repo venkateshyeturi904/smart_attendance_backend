@@ -40,14 +40,14 @@ public class AttendanceController {
 
     
 
-    @PostMapping("/getAttendancePercentageByRollAndClass")
+    @GetMapping("/getAttendancePercentageByRollAndClass/{class_id}/{rollno}")
     @CrossOrigin(origins = "http://localhost:3000")
-    public Float postMethodName(@RequestBody AttendanceQuery query) {
+    public Float postMethodName(
+        @PathVariable("class_id") String classId ,
+        @PathVariable("rollno") String rollNo) {
         //TODO: process POST request
-        String class_id = query.getClassId();
-        List<String> rollNo = query.getRollNos();
-        Integer present = attendanceService.getClassesAttendedByStudent(class_id , rollNo.get(0));
-        Integer classesHeld = attendanceService.noOfClassesHeld(class_id);
+        Integer present = attendanceService.getClassesAttendedByStudent(classId , rollNo);
+        Integer classesHeld = attendanceService.noOfClassesHeld(classId);
         Float percentage = ((float)present * (float)100) / (float) classesHeld;
         
         return percentage;

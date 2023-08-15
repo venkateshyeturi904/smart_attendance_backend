@@ -35,6 +35,9 @@ public class AttendanceService {
 
     @Autowired
     private StudentRepository studentRepository; 
+
+    @Autowired
+    private StudentService studentService;
 /* 
     // public ResponseEntity<String> saveAttendanceData(HttpEntity<MultiValueMap<String, Object>> requestEntity) throws JsonMappingException, JsonProcessingException{
     //     ResponseEntity<String> response = restTemplate.exchange(
@@ -101,28 +104,30 @@ public class AttendanceService {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
         JsonNode rollNumbersNode = jsonNode.get("roll_numbers");
-
+        List<String>presentRollNumbers = new ArrayList<>();
+        List<String>allRollNos = studentService.getAllRollNOs();
         if (rollNumbersNode.isArray()) {
             for (JsonNode rollNumberArray : rollNumbersNode) {
                 if (rollNumberArray.isArray() && rollNumberArray.size() > 0) {
                     String rollNumber = rollNumberArray.get(0).asText();
-                    
-                    String studentId = rollNumber;
-                    Attendance attendance = new Attendance();
-
-                    attendance.setStudentId(studentId);
-                    attendance.setClassId(incomingClassId);
-                    attendance.setDate(incomingDate);
-                    attendance.setPresent(true);
-
-                    attendanceRepository.save(attendance);
-
+                    presentRollNumbers.add(rollNumber);
                 }
             }
         }
+        for(String rollNumber : allRollNos) {
+            Attendance attendance = new Attendance();
+            attendance.setStudentId(rollNumber);
+            attendance.setClassId(incomingClassId);
+            attendance.setDate(incomingDate);
+            if(presentRollNumbers.contains(rollNumber)){
+                attendance.setPresent(true);
+            }
+            else{
+                attendance.setPresent(false);
+            }
+            attendanceRepository.save(attendance);
 
-
-
+        }
         return response;
     }
 
