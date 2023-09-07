@@ -15,15 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.stereotype.Service;
 
 import project.attendancebackend.model.Student;
+import project.attendancebackend.repository.AttendanceRepository;
 import project.attendancebackend.service.AttendanceService;
 import project.attendancebackend.service.StudentService;
 import project.attendancebackend.model.Attendance;
-import project.attendancebackend.model.AttendanceList;
 import project.attendancebackend.model.AttendanceQuery;
 import project.attendancebackend.model.AttendanceQuery;
+import project.attendancebackend.model.AttendanceReq;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -38,6 +40,64 @@ public class AttendanceController {
     @Autowired
     AttendanceService attendanceService;
 
+    @Autowired
+    AttendanceRepository attendanceRepository;
+
+
+    
+    // @PostMapping("/makeAtendanceByRollno")
+    // @CrossOrigin(origins = "http://localhost:3000")
+    // public ResponseEntity<String> makeAttendanceByRollno(
+    // @RequestBody Map<String, Object> requestBody
+    // ) {
+    // List<String> presentRollNos = (List<String>)requestBody.get("rollNos");
+    // String classId = (String) requestBody.get("classId");
+    // String dateString = (String) requestBody.get("date");
+
+    // // You can parse the date string to LocalDate if needed
+    // LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    
+    //     List<String> allRollNo = studentService.getAllRollNOs();
+    
+    //     for(String rollNo : allRollNo){
+    //         Attendance attendance = new Attendance();
+    //         attendance.setStudentId(rollNo);
+    //         attendance.setClassId(classId);
+    //         attendance.setDate(date);
+    //         if(presentRollNos.contains(rollNo)){
+    //             attendance.setPresent(true);
+    //         }
+    //         else attendance.setPresent(false);
+    //         attendanceRepository.save(attendance);
+
+    //     }
+
+    //     return ResponseEntity.ok("Attendance recorded successfully.");
+    // }
+
+    @PostMapping("/makeAttendanceByRollno")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public List<Attendance> returnAttendanceByRollNo(@RequestBody AttendanceReq req) {
+        String datePattern = "yyyy-MM-dd";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern);
+        LocalDate incomingDate = LocalDate.parse(req.getDate(), formatter);
+        List<String> presentRollNos = req.getRollNos();
+        String classId = req.getClassId();
+        List<String> allRollNo = studentService.getAllRollNOs();
+        List<Attendance> attendanceList = new ArrayList<Attendance>();
+    
+        for (String rollNo : allRollNo) {
+            Attendance attend = new Attendance();
+            attend.setStudentId(rollNo);
+            attend.setDate(incomingDate);
+            attend.setClassId(classId);
+            attend.setPresent(presentRollNos.contains(rollNo)); // Set 'present' based on the condition
+            attendanceList.add(attend);
+            attendanceRepository.save(attend);
+        }
+    
+        return attendanceList;
+    }
     
 
     @GetMapping("/getAttendancePercentageByRollAndClass/{class_id}/{rollno}")

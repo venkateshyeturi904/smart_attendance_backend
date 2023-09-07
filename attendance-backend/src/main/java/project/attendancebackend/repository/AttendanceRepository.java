@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import project.attendancebackend.model.Attendance;
-import project.attendancebackend.model.AttendanceList;
 
 public interface AttendanceRepository extends JpaRepository<Attendance,Long>{
     

@@ -27,6 +27,11 @@ public class StudentService {
     public List<String> getAllRollNOs(){
         return studentRepository.getAllRollNos();
     }
+
+
+    public List<Student> getStudentTabel(){
+        return studentRepository.getStudentTable();
+    }
     
 
 }

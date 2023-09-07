@@ -62,4 +62,11 @@ public class StudentController {
         return studentService.getAllRollNOs();
         
     }
+
+    @GetMapping(value="/getStudentTabel")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public List<Student> getStudentTabel() {
+        return studentService.getStudentTabel();
+    }
+    
 }

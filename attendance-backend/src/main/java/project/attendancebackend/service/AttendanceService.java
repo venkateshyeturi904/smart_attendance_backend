@@ -85,7 +85,7 @@ public class AttendanceService {
 
     // }
     */
-    public ResponseEntity<String> saveAttendanceData(HttpEntity<MultiValueMap<String, Object>> requestEntity) throws JsonMappingException, JsonProcessingException{
+    public List<String> saveAttendanceData(HttpEntity<MultiValueMap<String, Object>> requestEntity) throws JsonMappingException, JsonProcessingException{
         ResponseEntity<String> response = restTemplate.exchange(
             "http://localhost:5000/predict_roll_numbers", 
             HttpMethod.POST,
@@ -105,31 +105,34 @@ public class AttendanceService {
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
         JsonNode rollNumbersNode = jsonNode.get("roll_numbers");
         List<String>presentRollNumbers = new ArrayList<>();
-        List<String>allRollNos = studentService.getAllRollNOs();
+        // List<String>allRollNos = studentService.getAllRollNOs();
+        System.out.println(rollNumbersNode.toString());
         if (rollNumbersNode.isArray()) {
-            for (JsonNode rollNumberArray : rollNumbersNode) {
-                if (rollNumberArray.isArray() && rollNumberArray.size() > 0) {
-                    String rollNumber = rollNumberArray.get(0).asText();
-                    presentRollNumbers.add(rollNumber);
+            for (JsonNode rollNumber : rollNumbersNode) {
+                // Check if the current node is a string and add it to the list
+                if (rollNumber.isTextual()) {
+                    presentRollNumbers.add(rollNumber.asText());
                 }
             }
         }
-        for(String rollNumber : allRollNos) {
-            Attendance attendance = new Attendance();
-            attendance.setStudentId(rollNumber);
-            attendance.setClassId(incomingClassId);
-            attendance.setDate(incomingDate);
-            if(presentRollNumbers.contains(rollNumber)){
-                attendance.setPresent(true);
-            }
-            else{
-                attendance.setPresent(false);
-            }
-            attendanceRepository.save(attendance);
+        return presentRollNumbers;
+        // for(String rollNumber : allRollNos) {
+        //     Attendance attendance = new Attendance();
+        //     attendance.setStudentId(rollNumber);
+        //     attendance.setClassId(incomingClassId);
+        //     attendance.setDate(incomingDate);
+        //     if(presentRollNumbers.contains(rollNumber)){
+        //         attendance.setPresent(true);
+        //     }
+        //     else{
+        //         attendance.setPresent(false);
+        //     }
+        //     // attendanceRepository.save(attendance);
 
-        }
-        return response;
+        // }
+        // return response;
     }
+
 
 
     public Attendance addAttendance(Attendance attendance){

@@ -3,7 +3,12 @@ package project.attendancebackend.controller;
 
 
 import java.io.IOException;
-
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Collections;
+import java.util.Set;
+import java.util.HashSet;
 import javax.print.attribute.standard.Media;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,40 +41,50 @@ public class ImageController {
     @Autowired
     private AttendanceService attendanceService;
 
-    @PostMapping(path = "/uploadImage")
+    @PostMapping(path = "/uploadImages")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<String> uploadImage(
-        @RequestParam("image") MultipartFile file,
+    public Object uploadImages(
+        @RequestParam("images") List<MultipartFile> files,
         @RequestParam("classId") String classId,
         @RequestParam("date") String date
-        ) throws IOException{
-
-        if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("No image found in the request.");
+    ) throws IOException {
+    
+        if (files.isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.singletonList("No images found in the request."));
         }
-        
+    
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+    
+        List<String> response = new ArrayList<>();
+    
+        for (MultipartFile file : files) {
+            byte[] fileBytes = file.getBytes();
+            ByteArrayResource resource = new ByteArrayResource(fileBytes) {
+                @Override
+                public String getFilename() {
+                    return file.getOriginalFilename();
+                }
+            };
+    
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("images", resource);
+            body.add("classId", classId);
+            body.add("date", date);
+    
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+            List<String> temp = attendanceService.saveAttendanceData(requestEntity) ;
+            System.out.println(temp);
+            response.addAll(temp);
 
-        byte[] file_bytes = file.getBytes();
-        ByteArrayResource resource = new ByteArrayResource(file_bytes) {
-            @Override
-            public String getFilename() {
-                return file.getOriginalFilename();
-            }
-        };
-        
-        body.add("image", resource);
-        body.add("classId",classId);
-        body.add("date", date);
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        
-        ResponseEntity<String> response = attendanceService.saveAttendanceData(requestEntity);
-        System.out.println(response);
-        return ResponseEntity.ok(response.getBody());
+        }
+        Set<String>temp = new HashSet<>(response) ;
+        response = new ArrayList<>(temp) ;
+    
+        return response;
     }
+    
+
 
 
 }

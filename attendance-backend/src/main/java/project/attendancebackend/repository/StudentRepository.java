@@ -12,4 +12,7 @@ public interface StudentRepository extends JpaRepository<Student, String> {
     
     @Query(nativeQuery = true, value = "SELECT DISTINCT student_id FROM students")
     public List<String> getAllRollNos();
+
+    @Query(nativeQuery = true, value = "SELECT *  FROM students")
+    public List<Student> getStudentTable();
 }
