@@ -15,8 +15,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance,Long>{
     public Integer getClassesAttendedByStudent(@Param("class_id") String classId, @Param("roll_no") String rollNo);
 
     //gives the total classes held by a course
-    @Query(nativeQuery = true, value = "SELECT COUNT(DISTINCT CONCAT(class_id, '-', date)) AS distinct_pair_count FROM attendance; ")
-    public Integer gettotalClasses(@Param("class_id") String classId);
+    @Query(nativeQuery = true, value = "SELECT COUNT(DISTINCT date) AS distinct_pair_count FROM attendance where class_id = :classId")
+    public Integer gettotalClasses(@Param("classId") String classId);
 
     // @Query(nativeQuery = true, value = "SELECT a.student_id as rollNo, a.attendance_present as present, s.student_name as name FROM attendance a  JOIN students s ON a.student_id = s.student_id where date = :date and class_id = :classId;")
     // public List<AttendanceList> getAttendanceListByDate(@Param("class_id") String classId, @Param("date") String date);
